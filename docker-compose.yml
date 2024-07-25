@@ -1,0 +1,53 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: eosolar
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - eosolar
+
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    expose:
+      - "3000:3000"
+    depends_on:
+      - server
+    networks:
+      - eosolar
+
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: eosolar
+    ports:
+      - "3001:3001"
+    expose:
+      - "3001:3001"
+    depends_on:
+      - postgres
+    networks:
+      - eosolar
+
+volumes:
+  postgres_data:
+
+networks:
+  eosolar:
